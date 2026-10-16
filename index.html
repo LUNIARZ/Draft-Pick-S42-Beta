@@ -1,0 +1,307 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0e1224"><meta name="description" content="Simulasi draft pick & ban Mobile Legends S42 untuk turnamen custom Bo3. Data: statistik dan tier list mlbb.io">
+<title>Draft Simulator MLBB S42</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%235b8cff'/%3E%3Cpath d='M16 6l8 5v10l-8 5-8-5V11z' fill='%23ff5d6c'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0e1224;--s1:#161b33;--s2:#1f2646;--ln:#2b3358;--tx:#eef0ff;--mt:#8d95bd;--bl:#5b8cff;--rd:#ff5d6c;--au:#f4c95d;--ok:#4fd6a0;--hd:Rajdhani,"Arial Narrow",system-ui,sans-serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0 auto;max-width:640px;background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;padding:0 10px calc(84px + env(safe-area-inset-bottom))}
+button,input,select{font:inherit;color:var(--tx);background:var(--s2);border:1px solid var(--ln);border-radius:10px;padding:8px 12px;min-height:42px}
+button{cursor:pointer}button:disabled{opacity:.4}:focus-visible{outline:2px solid var(--au);outline-offset:2px}
+.top{position:sticky;top:0;z-index:6;background:var(--bg);display:flex;align-items:center;gap:8px;padding:10px 0 6px}
+.top h1{font:700 22px var(--hd);margin:0;flex:1;letter-spacing:.02em}.pill{font:600 15px var(--hd);background:var(--s2);border-radius:20px;padding:5px 12px}
+details.set{background:var(--s1);border:1px solid var(--ln);border-radius:12px;padding:8px 12px;margin:4px 0 8px}details.set summary{cursor:pointer;color:var(--mt)}
+.set .g{display:grid;gap:10px;margin-top:10px}.set label{display:flex;gap:10px;align-items:center}.set input[type=text]{width:50%;font-size:16px}
+#ribbon{border-radius:14px;padding:12px 14px;background:var(--s1);border-left:6px solid var(--ln);transition:border-color .25s,background .25s}
+#ribbon.B{border-color:var(--bl);background:linear-gradient(90deg,#5b8cff26,var(--s1))}#ribbon.R{border-color:var(--rd);background:linear-gradient(90deg,#ff5d6c26,var(--s1))}
+#phase{font:700 26px/1.1 var(--hd)}#hint{color:var(--mt);font-size:13px;margin-top:2px}
+#prog{display:flex;gap:3px;margin-top:10px}#prog i{flex:1;height:5px;border-radius:3px;background:var(--s2)}#prog i.B.d{background:var(--bl)}#prog i.R.d{background:var(--rd)}#prog i.now{box-shadow:0 0 0 2px var(--au)}
+.board{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.tm{background:var(--s1);border:1px solid var(--ln);border-top:4px solid var(--c);border-radius:14px;padding:8px}.tm.B{--c:var(--bl)}.tm.R{--c:var(--rd)}.tm.turn{box-shadow:0 0 0 2px var(--au)}
+.tm h2{font:700 17px var(--hd);margin:0 0 6px;color:var(--c);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bans{display:flex;gap:6px;margin-bottom:8px}
+.av{--h:200;width:40px;height:40px;flex:none;border-radius:11px;display:grid;place-items:center;font:700 15px var(--hd);color:#fff;background:linear-gradient(145deg,hsl(var(--h) 60% 48%),hsl(calc(var(--h) + 35) 55% 28%))}
+.bans .av{width:32px;height:32px;border-radius:50%;font-size:12px;position:relative;opacity:.55}.bans .av::after{content:"";position:absolute;inset:0;background:linear-gradient(135deg,transparent 46%,var(--rd) 47% 53%,transparent 54%)}
+.bans .em{width:32px;height:32px;border-radius:50%;border:1px dashed var(--ln)}.bans .em.now{border-color:var(--au)}
+.pk{display:grid;grid-template-columns:40px 1fr;gap:3px 8px;align-items:center;border:1px dashed var(--ln);border-radius:11px;padding:5px;margin:5px 0;min-height:56px}.pk.now{border-color:var(--au);background:#f4c95d14}
+.pk b{font:600 15px var(--hd);display:block;line-height:1.1}.pk small{color:var(--mt);font-size:11px}.pk select{grid-column:1/3;min-height:32px;padding:2px 8px;font-size:13px}
+.pk .em{color:var(--mt);font-size:12px;grid-column:1/3;text-align:center}
+.tabs{display:flex;gap:4px;background:var(--s1);border-radius:12px;padding:4px;margin:6px 0}.tabs button{flex:1;border:0;background:none;color:var(--mt);padding:6px}.tabs button.on{background:var(--s2);color:var(--tx);font-weight:600}
+.sec{display:none}.sec.on{display:block}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 8px}.chip{flex:none;background:var(--s2);border:1px solid var(--ln);border-radius:18px;padding:6px 12px;font-size:13px;cursor:pointer;white-space:nowrap}
+.t{font:700 12px var(--hd)}.tSS{color:#ffd76a;text-shadow:0 0 8px #ffb30088}.tS{color:var(--rd)}.tA{color:var(--au)}.tB{color:var(--ok)}.tC{color:var(--mt)}.tD{color:#667}
+.flt{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}.flt input{grid-column:1/3;font-size:16px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-height:50vh;overflow:auto}
+.hero{background:var(--s1);border:1px solid var(--ln);border-radius:12px;padding:8px 4px 6px;text-align:center;position:relative;cursor:pointer}.hero .av{margin:0 auto 4px}
+.hero b{display:block;font:600 14px var(--hd)}.hero i{display:block;font-style:normal;color:var(--mt);font-size:10px}.hero .t{position:absolute;top:5px;right:7px}
+.hero.sel{border-color:var(--au);background:#f4c95d1c}.hero.x{opacity:.18;pointer-events:none}
+.card{background:var(--s1);border:1px solid var(--ln);border-radius:14px;padding:12px;margin-bottom:8px}
+.seg{display:flex;gap:6px;margin-bottom:8px}.seg button{flex:1}.seg button.on{border-color:var(--au)}
+.need{padding:8px 0;border-bottom:1px solid var(--ln)}.need:last-child{border:0}.need .sg{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;align-items:center}
+.warn{color:var(--au)}.ok{color:var(--ok)}.bad{color:var(--rd)}small{color:var(--mt)}
+.sc{font:700 34px/1 var(--hd)}.bar{height:7px;background:var(--s2);border-radius:4px;margin:2px 0 8px}.bar span{display:block;height:100%;border-radius:4px}.row{display:flex;justify-content:space-between;font-size:12px;color:var(--mt)}
+ul{margin:6px 0;padding-left:18px}.hi{font-size:13px;padding:8px 0;border-bottom:1px solid var(--ln)}
+#bar{position:fixed;left:0;right:0;bottom:0;max-width:640px;margin:auto;background:var(--s1);border-top:1px solid var(--ln);padding:10px 12px calc(10px + env(safe-area-inset-bottom));display:flex;gap:8px;align-items:center;z-index:9}
+#sn{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#ok{min-width:96px;font:700 17px var(--hd)}#ok.ban{background:#b3263a;border-color:var(--rd)}#ok.pick{background:#1f9d6e;border-color:var(--ok)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<header class="top"><h1>Draft Simulator S42</h1><span class="pill" id="score"></span></header>
+<details class="set"><summary>Pengaturan dan Bo3</summary><div class="g">
+  <div style="display:flex;gap:8px"><input type="text" id="ta" value="Tim A"><input type="text" id="tb" value="Tim B"></div>
+  <label><input type="checkbox" id="fear"> Fearless: hero game sebelumnya tidak bisa dipakai</label>
+  <label><input type="checkbox" id="botR"> Bot mengisi giliran Red</label>
+  <label>Tier <input type="range" id="w" min="0" max="100" step="10" value="50" style="flex:1;padding:0;min-height:30px"> Statistik <span id="wv">50/50</span></label>
+  <button id="newBtn" style="background:#1f9d6e">Mulai Bo3 baru</button></div></details>
+<section id="ribbon"><div id="phase"></div><div id="hint"></div><div id="prog"></div></section>
+<main class="board"><div class="tm B" id="sb"></div><div class="tm R" id="sr"></div></main>
+<nav class="tabs"><button data-t="hero" class="on">Hero</button><button data-t="tim">Kekurangan</button><button data-t="res">Hasil</button><button data-t="his">Riwayat</button></nav>
+<section class="sec on" id="s-hero"><div class="chips" id="rec"></div>
+  <div class="flt"><input id="q" placeholder="Cari hero"><select id="fl"><option value="">Semua lane</option><option>Gold</option><option>EXP</option><option>Mid</option><option>Jungle</option><option>Roam</option></select>
+  <select id="so"><option value="prio">Prioritas</option><option value="wr">Win rate</option><option value="br">Ban rate</option><option value="pr">Pick rate</option><option value="name">Nama</option></select></div>
+  <div class="grid" id="grid"></div></section>
+<section class="sec" id="s-tim"><div class="card" id="needs"></div></section>
+<section class="sec" id="s-res"><div class="card" id="an"><small>Hasil analisis muncul setelah pick terakhir.</small></div></section>
+<section class="sec" id="s-his"><div class="card" id="hist"></div></section>
+<div id="bar"><span id="sn"></span><button id="ok" onclick="confirmSel()">Pick</button><button id="auto">Auto</button></div>
+<script>
+const DATA=`Masha|FT|ER|60.16|0.58|32.90|S|42563
+Aulus|F|JEG|59.26|1.12|42.59|S|43764
+Rafaela|S|R|58.39|1.27|19.02|SS|35294
+Marcel|S|R|58.15|0.28|33.11|S|97356
+Argus|F|EG|55.94|0.49|1.12|A|54544
+Minotaur|TS|R|55.07|1.07|7.85|S|87366
+Khufra|T|R|54.68|0.32|1.86|A|76245
+Popol and Kupa|K|JGR|54.60|0.41|0.30|A|35623
+Gloo|T|ER|54.10|0.73|38.30|S|76354
+Lolita|ST|R|54.08|0.08|0.19|B|76364
+Floryn|S|R|54.06|0.96|12.76|A|222a6
+Carmilla|ST|R|53.81|1.16|14.96|SS|76366
+Valir|M|M|53.76|1.02|2.11|A|25827
+Obsidia|K|G|53.71|2.20|19.82|SS|33736
+Diggie|S|R|53.54|0.18|3.08|A|46285
+Bruno|K|G|53.28|0.33|0.19|A|12723
+Hirara|A|JE|53.01|0.57|68.71|A|54544
+Gord|M|M|52.89|0.59|0.56|A|25827
+Lukas|F|EJ|52.77|0.94|37.75|S|54544
+Estes|S|R|52.68|0.75|42.67|B|56284
+Edith|TK|RE|52.67|0.31|0.20|B|76245
+Benedetta|AF|JE|52.65|0.35|0.30|A|43833
+Irithel|K|G|52.47|0.39|0.26|B|12723
+Ling|A|J|52.40|0.69|0.69|A|43813
+Sun|F|EJ|52.24|1.60|21.34|A|44645
+Zhask|M|M|52.24|0.34|0.38|B|24828
+Hanabi|K|G|52.17|2.49|5.15|A|12723
+Atlas|T|R|52.11|0.94|10.53|A|98348
+Belerick|T|RE|52.08|1.74|55.95|A|87256
+Barats|TF|ERJ|51.94|0.67|4.26|A|75465
+Yve|M|M|51.93|0.05|0.04|B|25827
+Kagura|M|M|51.81|0.73|1.12|A|25827
+Minsitthar|F|ER|51.51|0.61|4.77|A|54544
+Cyclops|M|M|51.44|0.63|0.27|A|35824
+Bane|FM|EJ|51.37|0.35|0.18|B|44635
+Fredrinn|FT|JE|51.34|0.42|1.53|A|54544
+Eudora|M|M|51.33|1.95|58.94|A|14914
+Guinevere|F|JER|51.32|0.82|2.27|A|54544
+Kadita|MA|M|51.31|0.79|3.61|A|25827
+Beatrix|K|G|51.29|0.62|0.40|A|12723
+Natan|K|GM|51.26|0.25|0.13|B|12723
+Faramis|SM|MR|51.17|0.08|0.28|B|25827
+Natalia|A|JR|51.03|0.25|1.28|B|43722
+Silvanna|F|EJ|50.99|0.98|1.64|B|55733
+Cecilion|M|M|50.98|0.64|0.14|A|25827
+Zetian|M|M|50.95|1.52|3.93|A|25827
+Alice|TM|MEGJ|50.94|0.85|6.96|A|25827
+Brody|K|G|50.88|0.89|2.20|A|12723
+Terizla|FT|ER|50.87|0.32|0.17|B|54544
+Khaleed|F|ER|50.79|0.12|0.08|B|54544
+Leomord|F|JE|50.78|0.30|0.50|B|54544
+Clint|K|GJ|50.72|0.61|0.68|B|12723
+Akai|T|RJ|50.62|0.33|1.24|B|77336
+Hilda|FT|ER|50.61|0.56|8.66|C|54544
+Aldous|F|EJ|50.44|0.43|0.54|B|54833
+Paquito|FA|EJ|50.39|1.53|35.40|A|53834
+Zhuxin|M|M|50.30|0.17|0.30|B|25827
+Badang|F|ER|50.23|1.35|4.64|A|54544
+Ixia|K|G|50.05|0.69|0.71|B|12723
+Aamon|A|J|50.04|0.59|2.23|B|33923
+Vale|M|M|50.01|0.52|0.19|B|25827
+Julian|AF|JEM|50.00|0.65|0.80|B|54744
+Moskov|K|GJ|49.94|1.19|0.34|A|12723
+Saber|A|JR|49.88|1.03|22.82|A|43813
+X.Borg|F|E|49.85|0.59|1.77|B|43735
+Kaja|S|RE|49.78|0.54|16.77|B|56284
+Novaria|M|MR|49.76|1.27|3.98|A|25827
+Xavier|M|M|49.74|0.47|0.11|B|25828
+Suyou|AF|JE|49.72|0.71|0.91|A|54544
+Hanzo|A|J|49.70|0.38|11.29|B|43813
+Yi Sun-shin|AK|JG|49.65|1.18|5.13|A|12723
+Ruby|F|ERG|49.64|0.32|0.26|B|54544
+Sora|FA|EG|49.64|0.56|3.06|A|54544
+Lylia|M|M|49.52|0.46|0.37|B|25827
+Vexana|M|M|49.50|1.48|1.10|B|25827
+Cici|F|EG|49.45|0.56|0.97|B|54544
+Layla|K|G|49.43|1.78|1.32|C|12723
+Miya|K|G|49.42|2.63|6.75|A|12723
+Odette|M|M|49.40|0.60|0.33|B|25827
+Angela|S|R|49.31|1.73|9.75|B|56284
+Uranus|T|ER|49.27|0.35|0.34|B|63395
+Joy|A|J|49.24|0.13|0.19|B|43813
+Claude|K|GJ|49.14|0.81|0.23|B|12723
+Yu Zhong|F|EG|49.03|0.54|0.71|B|54544
+Selena|AM|RM|49.02|1.80|4.81|A|67825
+Nolan|A|J|48.95|1.33|5.20|A|63924
+Hylos|T|RE|48.89|0.30|0.26|C|76245
+Yin|FA|EJ|48.85|0.46|1.62|B|56634
+Kimmy|KM|GM|48.75|0.80|0.50|B|12723
+Roger|FK|J|48.73|0.29|0.10|D|43733
+Karrie|K|GJ|48.71|0.56|0.85|C|12723
+Thamuz|F|EJ|48.71|0.81|1.62|B|43663
+Lapu-Lapu|F|EG|48.66|0.32|0.28|C|54544
+Melissa|K|G|48.63|0.35|1.18|C|12723
+Aurora|M|M|48.57|0.59|0.37|B|36826
+Dyrroth|F|EJ|48.55|1.74|1.44|A|54544
+Phoveus|F|EG|48.53|0.25|0.54|C|54544
+Lunox|M|ME|48.31|0.30|0.19|C|25827
+Johnson|TS|R|48.27|0.78|2.08|B|87335
+Hayabusa|A|J|48.24|0.99|2.04|B|43813
+Lesley|KA|G|48.21|1.78|8.06|B|12723
+Wanwan|K|G|48.15|0.12|0.12|D|12723
+Alpha|F|JE|48.11|1.27|0.71|B|54544
+Arlott|FA|EG|48.07|0.40|0.31|B|54544
+Freya|F|EJ|48.07|0.69|1.72|B|65756
+Gusion|A|JEM|48.01|1.41|4.17|B|43923
+Alucard|FA|EJ|47.98|0.97|0.47|C|53753
+Luo Yi|MS|MR|47.90|0.18|0.08|D|25827
+Chang'e|M|M|47.89|0.71|0.34|D|35837
+Jawhead|F|REJ|47.79|0.32|0.28|D|65634
+Karina|A|J|47.76|0.82|3.21|C|42924
+Harley|AM|MJ|47.66|0.75|3.41|C|43813
+Chip|ST|R|47.54|0.04|0.22|D|56284
+Nana|M|RM|47.43|2.06|4.01|C|36554
+Pharsa|M|M|47.40|0.38|0.19|D|25827
+Martis|F|JE|47.34|0.60|0.42|C|45743
+Esmeralda|TM|EG|47.18|0.88|2.18|B|54474
+Baxia|T|RJ|47.01|0.05|0.09|D|76245
+Grock|TF|RE|46.95|0.36|0.71|C|67344
+Helcurt|A|JR|46.93|0.54|5.01|D|34724
+Balmond|F|JE|46.46|0.65|0.39|D|43756
+Harith|M|MG|46.07|0.14|0.05|D|25827
+Kalea|SF|GR|46.05|0.18|0.40|D|12723
+Valentina|M|ME|45.70|0.18|0.18|D|43735
+Zilong|FA|EJ|45.70|0.70|0.47|D|53733
+Chou|F|REG|45.07|1.13|3.06|C|54544
+Gatotkaca|TF|RE|44.97|0.56|0.29|D|76245
+Mathilda|SA|R|44.80|0.14|0.19|D|66385
+Tigreal|T|RE|44.74|1.98|5.88|C|76245
+Granger|K|G|43.05|1.40|1.57|D|12723
+Lancelot|A|JE|42.88|0.57|0.43|D|53843
+Fanny|A|J|41.73|0.84|1.99|D|73913
+Franco|T|R|41.41|1.03|3.21|D|87332`;
+const RC={T:'Tank',F:'Fighter',A:'Assassin',M:'Mage',K:'Marksman',S:'Support'},LC={G:'Gold',E:'EXP',M:'Mid',J:'Jungle',R:'Roam'},HUE={Tank:205,Fighter:25,Assassin:335,Mage:270,Marksman:45,Support:150};
+const TS={SS:100,S:85,A:65,B:45,C:28,D:12};   // skor tier list
+const H=DATA.trim().split('\n').map((l,i)=>{const [n,r,ln,wr,pr,br,tr,at]=l.split('|'),a=[...at].map(c=>parseInt(c,16));
+  return{id:i+1,name:n,roles:[...r].map(c=>RC[c]),role:RC[r[0]],lanes:[...ln].map(c=>LC[c]),wr:+wr,pr:+pr,br:+br,tier:tr,engage:a[0],cc:a[1],burst:a[2],sustain:a[3],aoe:a[4]}});
+// W = bobot tier list, sisanya statistik (win rate + kehadiran = pick rate x10 + ban rate)
+let W=.5;function calc(){H.forEach(h=>{const st=Math.max(0,Math.min(100,Math.min(1,h.pr*.1+h.br/100)*70+(h.wr-50)*3+20));h.prio=+(W*TS[h.tier]+(1-W)*st).toFixed(1)})}
+// Urutan draft: [tipe, sisi, jumlah hero sekaligus dalam 1 giliran]
+const PH=[['ban','B',1],['ban','R',1],['ban','B',1],['ban','R',1],['pick','B',1],['pick','R',2],['pick','B',2],['ban','B',1],['ban','R',1],['pick','R',2],['pick','B',2],['pick','R',1]];
+const ACTS=PH.flatMap(([t,s,n])=>Array(n).fill(s)),LANES=['Gold','EXP','Mid','Jungle','Roam'],DIM=[['engage','Engage'],['cc','Crowd control'],['burst','Burst'],['sustain','Sustain/peel'],['aoe','AoE']],NEED={engage:5,cc:5,burst:5,sustain:4,aoe:4.5};
+let S,G,sel=null,ns='B',lastStep=-1;
+const $=id=>document.getElementById(id),hid=id=>H.find(h=>h.id==id),esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const av=h=>`<span class="av" style="--h:${HUE[h.role]+(h.name.length*7)%24}">${esc(h.name.slice(0,2))}</span>`;
+const store={get(){try{return JSON.parse(localStorage.getItem('mlbb-draft-s42')||'[]')}catch(e){return[]}},set(v){try{localStorage.setItem('mlbb-draft-s42',JSON.stringify(v))}catch(e){}}};
+
+function newSeries(){S={a:$('ta').value||'Tim A',b:$('tb').value||'Tim B',game:1,sc:{a:0,b:0},used:[],fear:$('fear').checked};newGame()}
+const blueKey=()=>S.game%2?'a':'b',redKey=()=>S.game%2?'b':'a';                  // sisi ditukar tiap game
+function newGame(){G={step:0,k:0,n:0,B:{ban:[],pick:[]},R:{ban:[],pick:[]},roles:{B:[],R:[]},done:false};sel=null;lastStep=-1;$('an').innerHTML='<small>Hasil analisis muncul setelah pick terakhir.</small>';tab('hero');render()}
+const cur=()=>PH[G.step];
+function unavailable(){const s=new Set(S.used);['B','R'].forEach(x=>{G[x].ban.forEach(i=>i&&s.add(i));G[x].pick.forEach(i=>s.add(i))});return s}
+function act(id){
+  if(G.done||(id&&unavailable().has(id)))return;const [type,side,n]=cur();
+  G[side][type].push(id);G.n++;sel=null;
+  if(++G.k>=n){G.k=0;G.step++;if(G.step>=PH.length){G.done=true;finish()}}
+  render();
+  if($('botR').checked&&!G.done&&cur()[1]==='R')setTimeout(()=>{if(!G.done&&cur()[1]==='R')autoAct()},450);
+}
+function autoAct(){if(G.done)return;const s=G.step;do{const r=recs()[0];act(r?r.h.id:null)}while(!G.done&&G.step===s)}
+function confirmSel(){if(sel)act(sel)}
+function pickSel(id){sel=sel===id?null:id;renderGrid();renderBar()}
+
+// lane: isi manual dari user, sisanya otomatis (hero flexible)
+function entries(s){return G[s].pick.map((id,i)=>id?{i,h:hid(id),m:G.roles[s][i]||null}:null).filter(Boolean)}
+function assign(es){const res={},taken=new Set(),own={};es.forEach(e=>{if(e.m){res[e.i]=e.m;taken.add(e.m)}});
+  const auto=es.filter(e=>!e.m),tryH=(k,seen)=>{for(const l of auto[k].h.lanes){if(taken.has(l)||seen.has(l))continue;seen.add(l);if(own[l]===undefined||tryH(own[l],seen)){own[l]=k;return true}}return false};
+  auto.forEach((e,k)=>tryH(k,new Set()));LANES.forEach(l=>{if(own[l]!==undefined)res[auto[own[l]].i]=l});return res}
+const covered=es=>new Set(Object.values(assign(es))).size;
+function setRole(s,i,v){G.roles[s][i]=v||null;render();if(G.done)finish()}
+const avg=(t,k)=>t.length?t.reduce((s,h)=>s+h[k],0)/t.length:5;
+
+function recs(){const [type,side]=cur(),un=unavailable(),es=entries(side),mine=es.map(e=>e.h),opp=entries(side==='B'?'R':'B').map(e=>e.h),base=covered(es);
+  return H.filter(h=>!un.has(h.id)).map(h=>{let sc=h.prio;
+    if(type==='pick'){sc+=covered(es.concat({i:-1,h,m:null}))>base?18:-25;sc+=Math.min(4,(h.lanes.length-1)*2);
+      DIM.forEach(([k])=>{sc+=h[k]*(mine.length&&avg(mine,k)<5?1:.3)*.6});if(opp.length&&opp.every(o=>!o.roles.some(r=>r==='Tank'||r==='Support'))&&h.burst>=8)sc+=4}
+    else sc+=h.br>30?3:0;return{h,sc}}).sort((a,b)=>b.sc-a.sc)}
+function needs(side){const es=entries(side),as=assign(es),t=es.map(e=>e.h),left=5-t.length,out=[],un=unavailable(),av2=H.filter(h=>!un.has(h.id)),
+  miss=LANES.filter(l=>!es.some(e=>as[e.i]===l)),unp=es.filter(e=>as[e.i]===undefined),inMiss=h=>h.lanes.some(l=>miss.includes(l)),
+  top=(f,only)=>av2.filter(h=>!only||only(h)).map(h=>({h,s:f(h)})).sort((a,b)=>b.s-a.s).slice(0,3).map(x=>x.h);
+  if(unp.length)out.push({c:'warn',t:`Atur lane manual: ${unp.map(e=>esc(e.h.name)).join(', ')}`,s:[]});
+  if(miss.length)out.push({c:left?'':'bad',t:`Lane kosong: <b>${miss.join(', ')}</b>${left?` (sisa ${left} slot)`:''}`,s:left?top(h=>h.prio*.5+(inMiss(h)?40:0),inMiss):[]});
+  if(t.length>=2){if(!t.some(h=>h.roles.includes('Tank')))out.push({c:'bad',t:'Belum ada Tank atau frontline',s:left?top(h=>h.prio*.5+h.engage*4+(inMiss(h)?8:0),h=>h.roles.includes('Tank')):[]});
+    DIM.map(([k,n])=>({k,n,a:avg(t,k)})).filter(x=>x.a<NEED[x.k]).sort((x,y)=>x.a-NEED[x.k]-(y.a-NEED[y.k])).forEach(x=>out.push({c:'',t:`${x.n} kurang (${x.a.toFixed(1)}, target minimal ${NEED[x.k]})`,s:left?top(h=>h.prio*.4+h[x.k]*6+(inMiss(h)?8:0)):[]}))}
+  return{out:out.slice(0,6),n:t.length}}
+
+function tab(t){document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));document.querySelectorAll('.sec').forEach(s=>s.classList.toggle('on',s.id==='s-'+t))}
+function render(){
+  $('score').textContent=`G${S.game} · ${S.sc.a}-${S.sc.b}`;
+  const [type,side,n]=G.done?[0,0,0]:cur();if(!G.done&&G.step!==lastStep){ns=side;lastStep=G.step}
+  $('ribbon').className=G.done?'':side;
+  $('phase').textContent=G.done?'Draft selesai':`${type==='ban'?'Ban':'Pick'} ${side==='B'?'Blue':'Red'}`;
+  $('hint').textContent=G.done?'Cek tab Hasil, lalu pilih pemenang game.':`${S[side==='B'?blueKey():redKey()]} ${type==='ban'?'memilih hero untuk di-ban':n-G.k>1?'memilih 2 hero sekaligus':'memilih 1 hero'}`;
+  $('prog').innerHTML=ACTS.map((s,i)=>`<i class="${s} ${i<G.n?'d':''} ${!G.done&&i===G.n?'now':''}"></i>`).join('');
+  team('sb','B',S[blueKey()]);team('sr','R',S[redKey()]);renderNeeds();renderGrid();renderBar();
+  $('rec').innerHTML=G.done?'':recs().slice(0,6).map(x=>`<span class="chip" onclick="pickSel(${x.h.id})">${esc(x.h.name)} <span class="t t${x.h.tier}">${x.h.tier}</span> <small>${x.h.lanes.join('/')}</small></span>`).join('')}
+function team(el,s,name){const es=entries(s),as=assign(es),[type,side]=G.done?[0,0]:cur(),turn=!G.done&&side===s;
+  $(el).className='tm '+s+(turn?' turn':'');let h=`<h2>${esc(name)}</h2><div class="bans">`;
+  for(let i=0;i<3;i++){const id=G[s].ban[i];h+=id?`<span class="av" style="--h:${HUE[hid(id).role]}" title="${esc(hid(id).name)}">${esc(hid(id).name.slice(0,2))}</span>`:`<span class="em ${turn&&type==='ban'&&i===G[s].ban.length?'now':''}"></span>`}
+  h+='</div>';
+  for(let i=0;i<5;i++){const id=G[s].pick[i],x=id&&hid(id),now=turn&&type==='pick'&&i>=G[s].pick.length&&i<G[s].pick.length+cur()[2]-G.k;
+    h+=`<div class="pk ${now?'now':''}">`+(x?`${av(x)}<div><b>${esc(x.name)}</b><small>${x.roles.join('/')}</small></div><select aria-label="Lane ${esc(x.name)}" onchange="setRole('${s}',${i},this.value)"><option value="">Auto (${as[i]||'?'})</option>${LANES.map(l=>`<option ${G.roles[s][i]===l?'selected':''}>${l}</option>`).join('')}</select>`:`<span class="em">Pick ${i+1}</span>`)+'</div>'}
+  $(el).innerHTML=h}
+function renderNeeds(){const r=needs(ns),B=S[blueKey()],R=S[redKey()];
+  $('needs').innerHTML=`<div class="seg"><button class="${ns==='B'?'on':''}" onclick="ns='B';renderNeeds()">Blue: ${esc(B)}</button><button class="${ns==='R'?'on':''}" onclick="ns='R';renderNeeds()">Red: ${esc(R)}</button></div>`
+  +(!r.n?'<small>Belum ada pick. Kekurangan tim muncul setelah pick pertama.</small>':!r.out.length?'<div class="ok">Komposisi seimbang, tidak ada kekurangan utama.</div>'
+  :r.out.map(x=>`<div class="need"><div class="${x.c}">${x.t}</div>${x.s.length?`<div class="sg"><small>Saran:</small>${x.s.map(h=>`<span class="chip" onclick="pickSel(${h.id});tab('hero')">${esc(h.name)}</span>`).join('')}</div>`:''}</div>`).join(''))}
+function renderGrid(){const q=$('q').value.toLowerCase(),fl=$('fl').value,so=$('so').value,un=unavailable();
+  $('grid').innerHTML=H.filter(h=>h.name.toLowerCase().includes(q)&&(!fl||h.lanes.includes(fl))).sort((a,b)=>so==='name'?a.name.localeCompare(b.name):b[so]-a[so])
+  .map(h=>`<div class="hero ${un.has(h.id)||G.done?'x':''} ${sel===h.id?'sel':''}" onclick="pickSel(${h.id})"><span class="t t${h.tier}">${h.tier}</span>${av(h)}<b>${esc(h.name)}</b><i>${h.lanes.join('/')}</i><i>WR ${h.wr} · P ${h.pr} · B ${h.br}</i></div>`).join('')}
+function renderBar(){const b=$('ok'),hh=sel&&hid(sel);if(G.done){$('sn').innerHTML='<small>Draft selesai</small>';b.disabled=true;b.textContent='Selesai';b.className='';return}
+  const [type,side]=cur();$('sn').innerHTML=hh?`<b>${esc(hh.name)}</b> <small>${hh.lanes.join('/')}</small>`:`<small>Pilih hero untuk ${type} ${side==='B'?'Blue':'Red'}</small>`;
+  b.disabled=!hh;b.textContent=type==='ban'?'Ban':'Pick';b.className=type}
+
+function tf(side){const es=entries(side),t=es.map(e=>e.h),as=assign(es),d={};DIM.forEach(([k])=>d[k]=avg(t,k));
+  const score=Math.round((d.engage*.25+d.cc*.25+d.burst*.2+d.sustain*.15+d.aoe*.15)*10),lanes=LANES.filter(l=>!es.some(e=>as[e.i]===l)),note=[];
+  if(d.engage<4.5)note.push(['bad','Engage lemah, sulit membuka teamfight']);else if(d.engage>=6)note.push(['ok','Engage kuat']);
+  if(d.cc<4.5)note.push(['bad','Crowd control kurang']);else if(d.cc>=5.5)note.push(['ok','CC cukup untuk mengunci target']);
+  if(d.sustain<3.5)note.push(['bad','Minim sustain/peel, rawan kehabisan di fight panjang']);
+  if(d.burst>=6.5)note.push(['ok','Burst tinggi, kuat menghabisi target prioritas']);if(d.aoe>=5.5)note.push(['ok','AoE damage bagus']);
+  if(!t.some(h=>h.roles.includes('Tank')))note.push(['bad','Tanpa Tank atau frontline']);if(lanes.length)note.push(['bad','Lane kosong: '+lanes.join(', ')]);
+  return{score,d,note,lineup:es.map(e=>`${e.h.name} (${as[e.i]||'?'})`).join(', ')}}
+function finish(){const b=tf('B'),r=tf('R'),box=(x,l,c)=>`<div class="sc" style="color:${c}">${x.score}</div><b>${esc(l)}</b><br><small>${esc(x.lineup)}</small><div style="margin-top:8px">`
+  +DIM.map(([k,n])=>`<div class="row"><span>${n}</span><span>${x.d[k].toFixed(1)}</span></div><div class="bar"><span style="width:${x.d[k]*10}%;background:${c}"></span></div>`).join('')+'</div><ul>'+x.note.map(n=>`<li class="${n[0]}">${n[1]}</li>`).join('')+'</ul>',
+  diff=b.score-r.score;G.tf={B:b.score,R:r.score};
+  $('an').innerHTML=box(b,'Blue: '+S[blueKey()],'var(--bl)')+box(r,'Red: '+S[redKey()],'var(--rd)')+`<p>Prediksi teamfight: <b>${Math.abs(diff)<3?'seimbang':diff>0?'Blue unggul':'Red unggul'}</b> (selisih ${Math.abs(diff)})</p><div style="display:flex;gap:8px"><button style="flex:1" onclick="win('B')">Blue menang</button><button style="flex:1" onclick="win('R')">Red menang</button></div>`;tab('res')}
+function win(w){const wk=w==='B'?blueKey():redKey(),bans=[...G.B.ban,...G.R.ban].filter(Boolean).map(i=>hid(i).name).join(', ');
+  const hs=store.get();hs.unshift({a:S.a,b:S.b,g:S.game,w:S[wk],tf:`${G.tf.B}-${G.tf.R}`,bans,t:Date.now()});store.set(hs.slice(0,40));S.sc[wk]++;
+  if(S.fear)G.B.pick.concat(G.R.pick).forEach(i=>S.used.push(i));renderHist();
+  if(S.sc.a===2||S.sc.b===2||S.game===3){$('an').innerHTML=`<div class="sc">${esc(S.sc.a>S.sc.b?S.a:S.b)} menang Bo3</div><p>Skor akhir ${S.sc.a}-${S.sc.b}. Buka Pengaturan untuk memulai Bo3 baru.</p>`;render();return}
+  S.game++;newGame()}
+function renderHist(){const hs=store.get();$('hist').innerHTML=hs.length?hs.map(g=>`<div class="hi"><b>${esc(g.a)} vs ${esc(g.b)}</b> · G${g.g} · menang ${esc(g.w)} · TF ${g.tf}<br><small>Ban: ${esc(g.bans||'-')}</small></div>`).join('')+'<button onclick="store.set([]);renderHist()" style="margin-top:8px">Hapus riwayat</button>':'<small>Belum ada game tersimpan. Riwayat disimpan di browser ini.</small>'}
+
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>tab(b.dataset.t));
+['q','fl','so'].forEach(i=>$(i).addEventListener('input',renderGrid));
+$('auto').onclick=autoAct;$('newBtn').onclick=newSeries;
+$('w').oninput=e=>{W=+e.target.value/100;$('wv').textContent=`${e.target.value}/${100-e.target.value}`;calc();if(G)render()};
+calc();renderHist();newSeries();
+</script></body></html>
